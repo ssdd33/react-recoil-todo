@@ -6,7 +6,8 @@ function TodoCard({ id }) {
   const [todolist, setTodolist] = useRecoilState(todoList);
   const addTopItem = () => {
     /*
-      1.
+      1.add item {id:,text:'',isChecked:false,cardId:id}
+      2.add itemIds ?
       */
   };
   const insertItem = () => {};
