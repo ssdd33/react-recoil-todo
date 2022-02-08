@@ -43,20 +43,21 @@ export const todoList = selectorFamily({
   get:
     (cardId) =>
     ({ get }) => {
-      const todostate = get(todoState);
-      const listByCardId = todostate.find(
+      const todostates = get(todoState);
+      const todostate = todostates.filter(
         (state) => state.cardId === cardId
-      ).todoList;
+      )[0];
+      const todolist = todostate.todoList;
 
-      switch (listByCardId.filter) {
+      switch (todostate.filter) {
         case "all":
-          return listByCardId;
+          return todolist;
         case "complete":
-          return listByCardId.filter((item) => item.isComplete);
+          return todolist.filter((item) => item.isComplete);
         case "unComplete":
-          return listByCardId.filter((item) => !item.isComplete);
+          return todolist.filter((item) => !item.isComplete);
         default:
-          return listByCardId;
+          return todolist;
       }
     },
 });
