@@ -44,6 +44,8 @@ export const todoList = selectorFamily({
     (cardId) =>
     ({ get }) => {
       const todostates = get(todoState);
+      console.log(typeof todostates);
+      console.log(todostates);
       const todostate = todostates.filter(
         (state) => state.cardId === cardId
       )[0];
@@ -73,6 +75,90 @@ export const updateFilter = selectorFamily({
             card.cardId === cardId ? { ...card, filter: option } : card
           );
         return prevState.map((card) => ({ ...card, filter: option }));
+      });
+    },
+});
+
+//crud
+/* todoItem
+ toggleCheck, itemId,cardId | changeText, text, itemId ,cardId|  insert, itemId ,cardId|  remove, itemId ,cardId
+ */
+/*card
+ insert cardId | remove cardId
+ */
+
+export const updateTodoItem = selectorFamily({
+  key: "updateTodoItem",
+  set:
+    (type, payload) =>
+    ({ set }) => {
+      set(todoState, (prevState) => {
+        const { cardId, itemId, text } = payload;
+        let todoList = prevState.filter((card) => card.cardId === cardId)[0]
+          .todoList;
+        let newList = [];
+        switch (type) {
+          case "toggleCheck":
+            newList = todoList.map((item) =>
+              item.id === itemId
+                ? { ...item, isComplete: !item.isComplete }
+                : item
+            );
+            break;
+          case "changeText":
+            newList = todoList.map((item) =>
+              item.id === itemId ? { ...item, text } : item
+            );
+            break;
+          case "insert":
+            todoList = todoList.map((item) =>
+              item.id > itemId ? { ...item, id: item.id + 1 } : item
+            );
+            newList = todoList
+              .slice(0, itemId)
+              .concat([{ id: itemId + 1, text: "", isComplete: false }])
+              .concat(todoList.slice(itemId));
+            break;
+          case "remove":
+            newList = todoList.filter((item) => item.id !== itemId);
+            newList = newList.map((item) =>
+              item.id > itemId ? { ...item, id: item.id - 1 } : item
+            );
+            break;
+          default:
+            newList = todoList;
+            break;
+        }
+        return prevState.map((card) =>
+          card.cardId === cardId ? { ...card, todoList: newList } : card
+        );
+      });
+    },
+});
+
+export const updateCard = selectorFamily({
+  key: "updateCard",
+  set:
+    (type, cardId) =>
+    ({ set }) => {
+      set(todoState, (prevState) => {
+        switch (type) {
+          case "insert":
+            let newState = prevState.map((card) =>
+              card.cardId > cardId ? { ...card, cardId: card.cardId + 1 } : card
+            );
+            newState.push({
+              cardId: cardId + 1,
+              filter: "all",
+              todoList: [{ id: 1, text: "", isComplete: false }],
+            });
+            newState.sort((a, b) => a.cardId - b.cardId);
+            return newState;
+          case "remove":
+            return prevState.filter((card) => card.cardId !== cardId);
+          default:
+            return prevState;
+        }
       });
     },
 });

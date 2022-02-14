@@ -16,7 +16,7 @@ export default function TodoItem({ item, handleOnCheck, handleOnChangeText }) {
         type={"text"}
         value={inputValue}
         onChange={onChange}
-        onKeyUp={() => handleOnChangeText(item.id, inputValue)}
+        onBlur={() => handleOnChangeText(item.id, inputValue)}
       />
     </div>
   );
