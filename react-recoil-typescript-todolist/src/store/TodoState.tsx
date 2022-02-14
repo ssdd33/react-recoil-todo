@@ -1,4 +1,4 @@
-import { atom, selector, selectorFamily } from "recoil";
+import { atom, selectorFamily } from "recoil";
 
 export interface ITodoItem {
   id: number;
@@ -31,7 +31,6 @@ export const todoState = atom<ITodoCard[]>({
   default: defaultTodoState,
 });
 
-//셀렉터 패밀리의 의존성이 겹치는 경우? itemList /todoList
 const itemList = selectorFamily<ITodoItem[], number>({
   key: "itemList",
   get:
@@ -48,18 +47,21 @@ export const todoList = selectorFamily({
     (cardId) =>
     ({ get }) => {
       const cardList = get(todoState);
-      const card = cardList.filter((card) => card.cardId === cardId)[0];
-      const filter = card.filter;
-      const todolist = card.todoList;
+      if (cardList.length) {
+        const card = cardList.filter((card) => card.cardId === cardId)[0];
+        const filter = card.filter;
+        const todolist = card.todoList;
 
-      switch (filter) {
-        case "complete":
-          return todolist.filter((item) => item.isComplete);
-        case "uncomplete":
-          return todolist.filter((item) => !item.isComplete);
-        default:
-          return todolist;
+        switch (filter) {
+          case "complete":
+            return todolist.filter((item) => item.isComplete);
+          case "uncomplete":
+            return todolist.filter((item) => !item.isComplete);
+          default:
+            return todolist;
+        }
       }
+      return [];
     },
 });
 
@@ -68,12 +70,16 @@ export const getFilterByCard = selectorFamily<string, number>({
   get:
     (cardId) =>
     ({ get }) => {
+      console.log(cardId);
       if (cardId > 0) {
         const cardList = get(todoState);
-        const card = cardList.find(
-          (card) => card.cardId === cardId
-        ) as ITodoCard;
-        return card.filter;
+        if (cardList.length) {
+          const card = cardList.find(
+            (card) => card.cardId === cardId
+          ) as ITodoCard;
+          return card.filter;
+        }
+        return "all";
       }
       return "";
     },
@@ -83,7 +89,7 @@ export const filter = atom({
   key: "filter",
   default: "all",
 });
-//selectorFamily 무시하고 파라미터 없이 사용할 수 있는지? atom을 defaultState로 사용하면 됨
+
 export const updateCardFilter = selectorFamily<string, number>({
   key: "updateCardFilter",
   get:
@@ -127,6 +133,7 @@ export const updateCard = selectorFamily<number, number>({
     (cardId) =>
     ({ set, get }, nextId) => {
       set(todoState, (prevState) => {
+        //add card
         if (nextId > 0) {
           const newState = prevState.map((card) =>
             card.cardId > cardId ? { ...card, cardId: card.cardId + 1 } : card
@@ -142,10 +149,11 @@ export const updateCard = selectorFamily<number, number>({
           console.log("cardIds", get(cardIds));
           return newState;
         }
+        //remove card
         const Ids = get(cardIds);
         const targetIdx = Ids.indexOf(cardId);
         set(cardIds, (prevState) =>
-          prevState.slice(0, targetIdx).concat(prevState.slice(targetIdx))
+          prevState.slice(0, targetIdx).concat(prevState.slice(targetIdx + 1))
         );
         return prevState.filter((card) => card.cardId !== cardId);
       });
@@ -237,31 +245,3 @@ change item text  text
 toggle item check
 
 */
-
-const todoStateByCardId = {
-  1: {
-    filter: "all",
-    nextItemId: 2,
-    todoList: [{ id: 1, text: "", isComplete: false }],
-  },
-};
-
-//test
-export const testA = atom({
-  key: "testA",
-  default: "A",
-});
-
-export const testB = atom({
-  key: "testB",
-  default: "B",
-});
-export const testS = selector<string>({
-  key: "testS",
-  get: ({ get }) => {
-    return get(testA);
-  },
-  set: ({ set }, newValue) => {
-    set(testB, newValue);
-  },
-});
