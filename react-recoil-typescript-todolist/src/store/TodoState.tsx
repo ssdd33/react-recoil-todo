@@ -52,6 +52,8 @@ export const todoList = selectorFamily({
         const filter = card.filter;
         const todolist = card.todoList;
 
+        console.log("todolist", todolist);
+
         switch (filter) {
           case "complete":
             return todolist.filter((item) => item.isComplete);

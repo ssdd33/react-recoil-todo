@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilValue, useRecoilState } from "recoil";
 import { AddTodoItem } from "../../components/AddTodoItem";
 import { todoList, todoState } from "../../store/TodoState";
 import { TodoItem } from "./TodoItem";
@@ -8,7 +8,7 @@ const randomKey = (id: number) => {
 };
 export function TodoList({ cardId }: { cardId: number }) {
   const list = useRecoilValue(todoList(cardId));
-  const setTodoState = useSetRecoilState(todoState);
+  const [todostate, setTodoState] = useRecoilState(todoState);
   const onAddItem = () => {
     setTodoState((prevState) =>
       prevState.map((card) =>
@@ -18,6 +18,7 @@ export function TodoList({ cardId }: { cardId: number }) {
       )
     );
   };
+  console.log(todostate);
   return (
     <TodoListStyle>
       {list.length ? (

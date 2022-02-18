@@ -21,7 +21,7 @@ export function TodoItem({
     //inputValue 업데이트 후 한번에 text 업데이트하는 방법으로 수정
     const value = !e.target.value ? " " : e.target.value;
     setInputValue(value);
-    setItem({ type: "changeText", payload: value });
+    // setItem({ type: "changeText", payload: value });
   };
 
   const onInsert = () => {
@@ -33,7 +33,12 @@ export function TodoItem({
   return (
     <TodoItemStyle>
       <input type={"checkbox"} checked={isComplete} onChange={onToggleCheck} />
-      <input type={"text"} value={inputValue} onChange={onTextChange} />
+      <input
+        type={"text"}
+        value={inputValue}
+        onChange={onTextChange}
+        // onBlur={() => setItem({ type: "changeText", payload: inputValue })}
+      />
       <Buttons onInsert={onInsert} onRemove={onRemove} />
     </TodoItemStyle>
   );
